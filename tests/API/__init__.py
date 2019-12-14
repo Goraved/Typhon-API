@@ -1,7 +1,7 @@
 import allure
 
 
-@allure.epic('API migration')
+@allure.epic('API tests')
 class TestBase:
     @staticmethod
     @allure.step('Compare actual and expected values')
