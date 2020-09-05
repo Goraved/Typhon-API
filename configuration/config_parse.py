@@ -23,7 +23,7 @@ def get_value(key, key_type, *args):
 
 
 # Environment settings
-TOKEN = get_value('token', CONFIGS)
+TOKEN = os.getenv('TOKEN', get_value('token', CONFIGS))
 MAIN_API_URL = get_value('main_api_url', URLS)
 
 PROJECT = get_value('project', GENERAL)
