@@ -8,12 +8,14 @@ jose
 oauthlib
 prospector
 py
+pylint-fail-under
 pytest
 pytest-repeat
 pytest-rerunfailures
 pytest-xdist
 python-jose[cryptography]
 pytz
+PyYaml
 requests
 requests_oauthlib
 xmltodict
