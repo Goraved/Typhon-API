@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 docker build -t api_test_image .
 docker run --name test_container -i api_test_image
-docker cp test_container:/Typhon/allure-results  ./
+docker cp test_container:/Typhon/allure_results  ./
 docker stop test_container
 docker rm test_container
 
@@ -15,5 +15,5 @@ docker rm test_container
 #brew install allure
 
 ## Open generated report
-LATEST=$(ls -td allure-results/archive/*/ | head -1)
+LATEST=$(ls -td allure_results/archive/*/ | head -1)
 allure open $LATEST/generated-report

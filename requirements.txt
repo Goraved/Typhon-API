@@ -3,7 +3,6 @@ allure-python-commons
 configparser
 faker
 flaky
-gevent
 jose
 oauthlib
 prospector

@@ -6,90 +6,101 @@ import xmltodict
 from requests import Response
 
 from configuration.config_parse import MAIN_API_URL, TOKEN
-from framework.utilities import Utilities
+from framework.utilities import log, fix_api_properties, create_executor_file
 
 
 class BaseAPI:
     properties = False
+    _REQUEST_MSG = 'Sent {} request with: \n  URL = {} \n  Headers = {} \n Params = {}'
+    _REQUEST_W_BODY_MSG = 'Sent {} request with: \n  URL = {} \n  Headers = {} \n  Body = {} \n Params = {}'
+    _RESPONSE_MSG = 'Status = {} \n Response = {}'
 
     def __init__(self):
         # Gather info for Allure environment block
         if not self.properties:
-            Utilities.fix_api_properties()
-            Utilities.create_executor_file()
+            fix_api_properties()
+            create_executor_file()
             self.properties = True
-        self.log = Utilities.log
+        self.log = log
         self.base_url = MAIN_API_URL
         self.headers = {'Content-Type': 'application/json', 'Authorization': f'Bearer {TOKEN}'}
 
-    def get(self, path: str, **kwargs) -> Response:
+    @allure.step('[API] GET')
+    def get(self, url: str, params: dict = None, **kwargs) -> Response:
         headers = kwargs.get('headers', self.headers)
-        self.log(f'Sent GET request with: \n  URL = {path} \n  Headers = {headers}', msg_type='REQUEST')
-        response = requests.get(path, headers=headers)
-        self.log(f'Status = {response.status_code} \n Response = {response.content}', msg_type='RESPONSE')
+        is_logged = log(self._REQUEST_MSG.format('GET', url, headers, params), msg_type='REQUEST')
+        response = requests.get(url, headers=headers)
+        if is_logged:
+            log(self._RESPONSE_MSG.format(response.status_code, response.content), msg_type='RESPONSE')
         if 'response_code' in kwargs:
             BaseAPI.check_status_code(response, kwargs.get('response_code'))
         else:
             BaseAPI.check_status_code_success(response)
         return response
 
-    def post(self, path: str, body, **kwargs) -> Response:
+    @allure.step('[API] POST')
+    def post(self, url: str, data, params: dict = None, **kwargs) -> Response:
         headers = kwargs.get('headers', self.headers)
-        self.log(f'Sent POST request with: \n  URL = {path} \n  Headers = {headers} \n  Body = {body}',
-                 msg_type='REQUEST')
-        response = requests.post(path, data=body, headers=headers)
-        self.log(f'Status = {response.status_code} \n Response = {response.content}', msg_type='RESPONSE')
+        is_logged = log(self._REQUEST_W_BODY_MSG.format('POST', url, headers, data, params), msg_type='REQUEST')
+        response = requests.post(url, data=data, headers=headers)
+        if is_logged:
+            log(self._RESPONSE_MSG.format(response.status_code, response.content), msg_type='RESPONSE')
         if 'response_code' in kwargs:
             BaseAPI.check_status_code(response, kwargs.get('response_code'))
         else:
             BaseAPI.check_status_code_success(response)
         return response
 
-    def post_upload(self, path: str, files, **kwargs) -> Response:
+    @allure.step('[API] POST upload')
+    def post_upload(self, url: str, files, params: dict = None, **kwargs) -> Response:
         headers = kwargs.get('headers', self.headers)
         del headers['Content-Type']
-        self.log(f'Sent POST request with: \n  URL = {path} \n  Headers = {headers} \n File = {files}',
-                 msg_type='REQUEST')
-        response = requests.post(path, headers=headers, files=files)
-        self.log(f'Status = {response.status_code} \n Response = {response.content}', msg_type='RESPONSE')
+        is_logged = log(self._REQUEST_W_BODY_MSG.format('POST', url, headers, files, params), msg_type='REQUEST')
+        response = requests.post(url, headers=headers, files=files)
+        if is_logged:
+            log(self._RESPONSE_MSG.format(response.status_code, response.content), msg_type='RESPONSE')
         if 'response_code' in kwargs:
             BaseAPI.check_status_code(response, kwargs.get('response_code'))
         else:
             BaseAPI.check_status_code_success(response)
         return response
 
-    def put(self, path: str, body=None, **kwargs) -> Response:
+    @allure.step('[API] PUT')
+    def put(self, url: str, data=None, params: dict = None, **kwargs) -> Response:
         headers = kwargs.get('headers', self.headers)
-        self.log(f'Sent PUT request with: \n  URL = {path} \n  Headers = {headers} \n  Body = {body}',
-                 msg_type='REQUEST')
-        if body is None:
-            response = requests.put(path, headers=headers)
+        is_logged = log(self._REQUEST_W_BODY_MSG.format('PUT', url, headers, data, params), msg_type='REQUEST')
+        if data is None:
+            response = requests.put(url, headers=headers)
         else:
-            response = requests.put(path, data=body, headers=headers)
-        self.log(f'Status = {response.status_code} \n Response = {response.content}', msg_type='RESPONSE')
+            response = requests.put(url, data=data, headers=headers)
+        if is_logged:
+            log(self._RESPONSE_MSG.format(response.status_code, response.content), msg_type='RESPONSE')
         if 'response_code' in kwargs:
             BaseAPI.check_status_code(response, kwargs.get('response_code'))
         else:
             BaseAPI.check_status_code_success(response)
         return response
 
-    def patch(self, path: str, body, **kwargs) -> Response:
+    @allure.step('[API] PATCH')
+    def patch(self, url: str, data, params: dict = None, **kwargs) -> Response:
         headers = kwargs.get('headers', self.headers)
-        self.log(f'Sent PATCH request with: \n  URL = {path} \n  Headers = {headers} \n  Body = {body}',
-                 msg_type='REQUEST')
-        response = requests.patch(path, data=body, headers=headers)
-        self.log(f'Status = {response.status_code} \n Response = {response.content}', msg_type='RESPONSE')
+        is_logged = log(self._REQUEST_W_BODY_MSG.format('PATCH', url, headers, data, params), msg_type='REQUEST')
+        response = requests.patch(url, data=data, headers=headers)
+        if is_logged:
+            log(self._RESPONSE_MSG.format(response.status_code, response.content), msg_type='RESPONSE')
         if 'response_code' in kwargs:
             BaseAPI.check_status_code(response, kwargs.get('response_code'))
         else:
             BaseAPI.check_status_code_success(response)
         return response
 
-    def delete(self, path: str, **kwargs) -> Response:
+    @allure.step('[API] DELETE')
+    def delete(self, url: str, params: dict = None, **kwargs) -> Response:
         headers = kwargs.get('headers', self.headers)
-        self.log(f'Sent DELETE request with: \n  URL = {path} \n  Headers = {headers}', msg_type='REQUEST')
-        response = requests.delete(path, headers=headers)
-        self.log(f'Status = {response.status_code} \n Response = {response.content}', msg_type='RESPONSE')
+        is_logged = log(self._REQUEST_MSG.format('DELETE', url, headers, params), msg_type='REQUEST')
+        response = requests.delete(url, headers=headers)
+        if is_logged:
+            log(self._RESPONSE_MSG.format(response.status_code, response.content), msg_type='RESPONSE')
         if 'response_code' in kwargs:
             BaseAPI.check_status_code(response, kwargs.get('response_code'))
         else:
@@ -146,42 +157,3 @@ class BaseAPI:
         dict_response = json.loads(string_response)
         return dict_response
 
-    # ---> OLD METHODS
-
-    # Get value from response by needed field
-    @staticmethod
-    @allure.step('Get value by specific field')
-    def get_value(field: str, response: Response):
-        values = response.json()
-        return values.get(field)
-
-    # Check that all mentioned fields present in response
-    @staticmethod
-    @allure.step('Check that all needed fields present')
-    def check_all_fields_present(fields, response: Response):
-        response_values = response.json()
-        missed_fields = []
-        for field in fields:
-            if field not in response_values:
-                missed_fields.append(field)
-        if len(missed_fields) == 0:
-            missed_fields = None
-        else:
-            ', '.join(missed_fields)
-        return missed_fields
-
-    # Check that all fields has needed types
-    @allure.step('Check that all fields have correct format type')
-    def check_types_of_fields(self, types, response: Response):
-        wrong_types = []
-        for field_type in types:
-            value = self.get_value(field_type, response)
-            actual_type = str(type(value).__name__)
-            expected_type = types.get(field_type)
-            if actual_type != expected_type:
-                wrong_types.append('%s is {%s} instead of {%s}' % (field_type, actual_type, expected_type))
-        if len(wrong_types) == 0:
-            wrong_types = None
-        else:
-            ', '.join(wrong_types)
-        return wrong_types

@@ -24,3 +24,4 @@ controllers: {
     create_user: '/users'
   }
 }
+filtered_log_endpoints: [ 'GET /test']
