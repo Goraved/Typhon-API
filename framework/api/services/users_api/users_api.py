@@ -12,7 +12,7 @@ class UsersAPI(UsersAPIInit):
         return self.parse_response_to_json(response)['data']
 
     def create_user(self, body: dict) -> dict:
-        response = self.post(f'{self.base_url}{self.create_user_path}', body=body['json'])
+        response = self.post(f'{self.base_url}{self.create_user_path}', data=body['json'])
         return self.parse_response_to_json(response)['data']
 
     def delete_user(self, user_id: int) -> dict:
