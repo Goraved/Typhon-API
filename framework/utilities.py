@@ -24,32 +24,32 @@ def convert_dict_to_json(dictionary: dict) -> str:
 
 
 def get_current_datetime():
-    return datetime.datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%SZ")
+    return datetime.datetime.utcnow().strftime('%Y-%m-%dT%H:%M:%SZ')
 
 
 def delta_time(start_time, end_time):
-    return datetime.datetime.strptime(end_time, "%Y-%m-%dT%H:%M:%SZ") - \
-           datetime.datetime.strptime(start_time, "%Y-%m-%dT%H:%M:%SZ")
+    return datetime.datetime.strptime(end_time, '%Y-%m-%dT%H:%M:%SZ') - \
+           datetime.datetime.strptime(start_time, '%Y-%m-%dT%H:%M:%SZ')
 
 
 def get_current_datetime_plus_specific_days(plus_days: int) -> str:
     date = datetime.datetime.now() + datetime.timedelta(days=plus_days)
-    return date.strftime("%Y-%m-%dT%H:%M:%SZ")
+    return date.strftime('%Y-%m-%dT%H:%M:%SZ')
 
 
 def get_current_datetime_plus_specific_seconds(plus_seconds: int) -> str:
     date = datetime.datetime.utcnow() + datetime.timedelta(seconds=plus_seconds)
-    return date.strftime("%Y-%m-%dT%H:%M:%SZ")
+    return date.strftime('%Y-%m-%dT%H:%M:%SZ')
 
 
 def get_current_datetime_minus_specific_seconds(minus_seconds: int) -> str:
     date = datetime.datetime.utcnow() - datetime.timedelta(seconds=minus_seconds)
-    return date.strftime("%Y-%m-%dT%H:%M:%SZ")
+    return date.strftime('%Y-%m-%dT%H:%M:%SZ')
 
 
 def get_current_datetime_plus_specific_minutes(plus_minutes: int) -> str:
     date = datetime.datetime.utcnow() - datetime.timedelta(minutes=plus_minutes)
-    return date.strftime("%Y-%m-%dT%H:%M:%SZ")
+    return date.strftime('%Y-%m-%dT%H:%M:%SZ')
 
 
 def current_kyiv_time() -> datetime:
@@ -58,65 +58,65 @@ def current_kyiv_time() -> datetime:
     return datetime.datetime.now(timezone)
 
 
-def kyiv_get_current_datetime_plus_specific_minutes(plus_minutes: int, date_format: str = "%Y-%m-%dT%H:%M:%S"):
+def kyiv_get_current_datetime_plus_specific_minutes(plus_minutes: int, date_format: str = '%Y-%m-%dT%H:%M:%S'):
     date = current_kyiv_time() + datetime.timedelta(minutes=plus_minutes)
     return date.strftime(date_format)
 
 
-def kyiv_get_current_datetime_minus_specific_minutes(minus_minutes: int, date_format: str = "%Y-%m-%dT%H:%M:%S"):
+def kyiv_get_current_datetime_minus_specific_minutes(minus_minutes: int, date_format: str = '%Y-%m-%dT%H:%M:%S'):
     date = current_kyiv_time() - datetime.timedelta(minutes=minus_minutes)
     return date.strftime(date_format)
 
 
 def fix_api_properties():
-    if os.path.isdir(f"{ROOT_DIR}/allure_results"):
-        if os.path.exists(f"{ROOT_DIR}/allure_results/environment.properties"):
+    if os.path.isdir(f'{ROOT_DIR}/allure_results'):
+        if os.path.exists(f'{ROOT_DIR}/allure_results/environment.properties'):
             remove_cycles = 10
             wait_interval = 1
             for _ in range(remove_cycles):
                 try:
-                    os.remove(f"{ROOT_DIR}/allure_results/environment.properties")
+                    os.remove(f'{ROOT_DIR}/allure_results/environment.properties')
                     break
                 except FileNotFoundError:
                     time.sleep(wait_interval)  # will be useful in parallel mode
     else:
-        os.mkdir(f"{ROOT_DIR}/allure_results")
-    file = open(f"{ROOT_DIR}/allure_results/environment.properties", "w+")
-    file.write(f"Environment {os.getenv('ENVIRONMENT', 'dev').upper()}\n")
-    file.write(f"URL {MAIN_API_URL}\n")
-    file.write(f"Git {GITHUB}\n")
-    file.write(f"OS_NAME {OS_NAME}\n")
+        os.mkdir(f'{ROOT_DIR}/allure_results')
+    with open(f'{ROOT_DIR}/allure_results/environment.properties', 'w+') as file:
+        file.write(f'Environment {os.getenv("ENVIRONMENT", "dev").upper()}\n')
+        file.write(f'URL {MAIN_API_URL}\n')
+        file.write(f'Git {GITHUB}\n')
+        file.write(f'OS_NAME {OS_NAME}\n')
 
 
 def create_executor_file():
-    if os.path.isdir(f"{ROOT_DIR}/allure_results"):
-        if os.path.exists(f"{ROOT_DIR}/allure_results/executor.json"):
+    if os.path.isdir(f'{ROOT_DIR}/allure_results'):
+        if os.path.exists(f'{ROOT_DIR}/allure_results/executor.json'):
             remove_cycles = 10
             wait_interval = 1
             for _ in range(remove_cycles):
                 try:
-                    os.remove(f"{ROOT_DIR}/allure_results/executor.json")
+                    os.remove(f'{ROOT_DIR}/allure_results/executor.json')
                     break
                 except FileNotFoundError:
                     time.sleep(wait_interval)  # will be useful in parallel mode
-    file_exec = '''{
-  "name" : "Jenkins",
-  "type" : "Jenkins",
-  "url" : "http://example.org",
-  "buildOrder" : "%s",
-  "buildName" : "Build %s",
-  "buildUrl" : "%s",
-  "reportName" : "Demo allure report",
-  "reportUrl" : "%s/allure"
-}''' % (os.getenv('BUILD_NUMBER'), os.getenv('BUILD_NUMBER'), os.getenv('BUILD_URL'), os.getenv('BUILD_URL'))
-    file = open(f"{ROOT_DIR}/allure_results/executor.json", "w+")
-    file.write(file_exec)
+    file_exec = {
+        'name': 'Jenkins',
+        'type': 'Jenkins',
+        'url': 'http://example.org',
+        'buildOrder': os.getenv('BUILD_NUMBER'),
+        'buildName': f'Build {os.getenv("BUILD_NUMBER")}',
+        'buildUrl': os.getenv('BUILD_URL'),
+        'reportName': 'Demo allure report',
+        'reportUrl': f'{os.getenv("BUILD_URL")}/allure'
+    }
+    file = open(f'{ROOT_DIR}/allure_results/executor.json', 'w+')
+    file.write(json.dumps(file_exec))
 
 
 def log(msg: str, msg_type: str = 'INFO') -> bool:
-    """
+    '''
     Method will write log message to the allure report into 'log' tab
-    """
+    '''
     should_be_logged = is_endpoint_should_be_logged(msg)
     is_logged = False
 
@@ -143,10 +143,9 @@ def is_endpoint_should_be_logged(msg: str) -> bool:
 def generate_txt_file(name: str, text: str = 'test') -> str:
     if not os.path.exists('temp_files'):
         os.makedirs('temp_files')
-    file = open(f"temp_files/{name}.txt", "w")
-    file.write(text)
-    file.close()
-    return os.path.abspath(f"temp_files/{name}.txt")
+    with open(f'temp_files/{name}.txt', 'w') as file:
+        file.write(text)
+    return os.path.abspath(f'temp_files/{name}.txt')
 
 
 def remove_file(name: str):
@@ -155,7 +154,7 @@ def remove_file(name: str):
 
 
 def read_json_from_file(filename: str):
-    full_file_path = f"{ROOT_DIR}/{TEST_DATA_DIR}/{filename}"
+    full_file_path = f'{ROOT_DIR}/{TEST_DATA_DIR}/{filename}'
     with open(full_file_path, 'r') as file:
         file_content = json.load(file)
     return file_content
