@@ -69,19 +69,19 @@ def kyiv_get_current_datetime_minus_specific_minutes(minus_minutes: int, date_fo
 
 
 def fix_api_properties():
-    if os.path.isdir(f'{ROOT_DIR}/allure_results'):
-        if os.path.exists(f'{ROOT_DIR}/allure_results/environment.properties'):
+    if os.path.isdir(f'{ROOT_DIR}/allure-results'):
+        if os.path.exists(f'{ROOT_DIR}/allure-results/environment.properties'):
             remove_cycles = 10
             wait_interval = 1
             for _ in range(remove_cycles):
                 try:
-                    os.remove(f'{ROOT_DIR}/allure_results/environment.properties')
+                    os.remove(f'{ROOT_DIR}/allure-results/environment.properties')
                     break
                 except FileNotFoundError:
                     time.sleep(wait_interval)  # will be useful in parallel mode
     else:
-        os.mkdir(f'{ROOT_DIR}/allure_results')
-    with open(f'{ROOT_DIR}/allure_results/environment.properties', 'w+') as file:
+        os.mkdir(f'{ROOT_DIR}/allure-results')
+    with open(f'{ROOT_DIR}/allure-results/environment.properties', 'w+') as file:
         file.write(f'Environment {os.getenv("ENVIRONMENT", "dev").upper()}\n')
         file.write(f'URL {MAIN_API_URL}\n')
         file.write(f'Git {GITHUB}\n')
@@ -89,13 +89,13 @@ def fix_api_properties():
 
 
 def create_executor_file():
-    if os.path.isdir(f'{ROOT_DIR}/allure_results'):
-        if os.path.exists(f'{ROOT_DIR}/allure_results/executor.json'):
+    if os.path.isdir(f'{ROOT_DIR}/allure-results'):
+        if os.path.exists(f'{ROOT_DIR}/allure-results/executor.json'):
             remove_cycles = 10
             wait_interval = 1
             for _ in range(remove_cycles):
                 try:
-                    os.remove(f'{ROOT_DIR}/allure_results/executor.json')
+                    os.remove(f'{ROOT_DIR}/allure-results/executor.json')
                     break
                 except FileNotFoundError:
                     time.sleep(wait_interval)  # will be useful in parallel mode
@@ -109,7 +109,7 @@ def create_executor_file():
         'reportName': 'Demo allure report',
         'reportUrl': f'{os.getenv("BUILD_URL")}/allure'
     }
-    file = open(f'{ROOT_DIR}/allure_results/executor.json', 'w+')
+    file = open(f'{ROOT_DIR}/allure-results/executor.json', 'w+')
     file.write(json.dumps(file_exec))
 
 
