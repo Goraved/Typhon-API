@@ -7,7 +7,7 @@ jose
 oauthlib
 prospector
 py
-pylint-fail-under
+pylint
 pytest
 pytest-repeat
 pytest-rerunfailures
